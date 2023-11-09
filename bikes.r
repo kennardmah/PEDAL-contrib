@@ -2,7 +2,6 @@ install.packages('httr')
 
 library(httr)
 
-city <- 'Boston'
 base_url <- "https://data.boston.gov/api/3/action/datastore_search"
 params <- list(
     resource_id = 'e4bfe397-6bfc-49c5-9367-c879fac7401d'
