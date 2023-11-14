@@ -1,10 +1,4 @@
-# Install and load required packages
-if (!requireNamespace("osrm", quietly = TRUE)) {
-  install.packages("osrm")
-}
-if (!requireNamespace("leaflet", quietly = TRUE)) {
-  install.packages("leaflet")
-}
+# install.packages(c("osmr", "leaflet", "data.table"))
 
 library(osrm)
 library(leaflet)
