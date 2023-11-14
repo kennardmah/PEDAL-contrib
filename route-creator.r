@@ -1,49 +1,45 @@
-# Install and load packages
-if (!require("leaflet")) install.packages("leaflet")
-if (!require("osrm")) install.packages("osrm")
-
-library(leaflet)
-library(osrm)
-
-# Define your API endpoint
-osrm_endpoint <- "http://router.project-osrm.org/route/v1/driving"
-
-# Function to get route information
-get_route_information <- function(start_coords, end_coords) {
-  route <- osrmRoute(
-    osrm = osrm_endpoint,
-    src = start_coords,
-    dst = end_coords,
-    format = "sf"
-  )
-  route
+# Install and load required packages
+if (!requireNamespace("osrm", quietly = TRUE)) {
+  install.packages("osrm")
+}
+if (!requireNamespace("leaflet", quietly = TRUE)) {
+  install.packages("leaflet")
 }
 
-# Function to extract street names from route segments
-extract_street_names <- function(route_sf) {
-  street_names <- route_sf$name
-  unique(street_names)
+library(osrm)
+library(leaflet)
+library(data.table)
+
+# Function to get route information
+get_cycling_route <- function(start_point, end_point) {
+  # Get route information
+  route <- osrmRoute(src = start_point, dst = end_point, overview = "full")
+  # Extract route details
+  route_data <- route$routes[[1]]$legs[[1]]$steps
+  route_coords <- lapply(route_data, function(x) x$geometry$coordinates)
+  route_coords <- do.call(c, route_coords)
+  # Extract road names
+  road_names <- sapply(route_data, function(x) x$name)
+  # Create a data.table with route details
+  route_dt <- data.table(
+    latitude = route_coords[, 2],
+    longitude = route_coords[, 1],
+    road_name = road_names
+  )
+  return(route_dt)
 }
 
 # Example usage
-start_coords <- c(-71.0656, 42.3594)  # Boston Common
-end_coords <- c(-71.0973, 42.3464)    # Fenway Park
+start_point <- c(-71.0589, 42.3601)  # Boston Common
+end_point <- c(-71.0921, 42.3388)    # Fenway Park
 
-route_sf <- get_route_information(start_coords, end_coords)
-street_names <- extract_street_names(route_sf)
+route_data <- get_cycling_route(start_point, end_point)
 
-print(paste("Streets on the route:", paste(street_names, collapse = ", ")))
+# Print the data.table
+print(route_data)
 
-# Create a leaflet map
-map <- leaflet() %>%
+# Visualize the route on a leaflet map
+leaflet(route_data) %>%
   addTiles() %>%
-  addPolylines(
-    data = route_sf,
-    color = "blue",
-    weight = 2
-  ) %>%
-  addMarkers(lng = start_coords[1], lat = start_coords[2], popup = "Start") %>%
-  addMarkers(lng = end_coords[1], lat = end_coords[2], popup = "End")
-
-# Display the map
-map
+  addPolylines(lng = ~longitude, lat = ~latitude, color = "blue", weight = 2) %>%
+  addMarkers(lng = c(start_point[1], end_point[1]), lat = c(start_point[2], end_point[2]), label = c("Start", "End"))
