@@ -1,7 +1,6 @@
-# Install and load packages
-if (!require("leaflet")) install.packages("leaflet")
-if (!require("ggplot2")) install.packages("ggplot2")
-if (!require("data.table")) install.packages("data.table")
+# # Install and load packages
+# install.packages(c("leaflet", "ggplot2",
+#   "data.table", "dbscan"))
 
 library(leaflet)
 library(ggplot2)
