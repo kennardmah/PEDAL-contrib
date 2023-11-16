@@ -6,7 +6,7 @@ library(ggplot2)
 library(data.table)
 
 # Load dataframe for accidents
-df <- fread("accident-data/vision-zero-crash.csv")
+df <- fread("dataframe/vision-zero-crash.csv")
 
 # Filter to cyclists
 bike_df <- df[mode_type == "bike"]
@@ -17,22 +17,22 @@ dark_df <- bike_df[isDark == 1]
 light_df <- bike_df[isDark == 0]
 
 # Create a leaflet map
-map <- leaflet(bike_df) %>%
+accidents <- leaflet(bike_df) %>%
   addTiles() %>%  # Add default OpenStreetMap map tiles
 
   # Add markers for dark conditions
   addCircleMarkers(data = bike_df[isDark == 1], ~long, ~lat, 
                    popup = ~as.character(dispatch_ts), 
-                   group = 'Dark Conditions', color = 'blue', fillOpacity = 0.1, weight = 0) %>%
+                   group = 'Dark Conditions', color = 'red', fillOpacity = 0.1, weight = 0, radius = 3) %>%
 
   # Add markers for light conditions
   addCircleMarkers(data = bike_df[isDark == 0], ~long, ~lat, 
                    popup = ~as.character(dispatch_ts), 
-                   group = 'Light Conditions', color = 'red', fillOpacity = 0.1, weight = 0) %>%
+                   group = 'Light Conditions', color = 'red', fillOpacity = 0.1, weight = 0, radius = 3) %>%
 
   # Add layer control
   addLayersControl(overlayGroups = c('Dark Conditions', 'Light Conditions'),
                    options = layersControlOptions(collapsed = FALSE))
 
 # Display the map
-map
+accidents
