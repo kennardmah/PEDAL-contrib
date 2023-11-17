@@ -1,0 +1,41 @@
+/* Get a fancy font from Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Yusei+Magic&display=swap');
+
+/* Full-Screen Map Styling */
+html, body {
+    background-color: black;
+    color: white;
+  }
+  
+  #map {
+    height: 100vh;
+    width: 100vw;
+    z-index: 400; /* Ensure map is below overlaying elements */
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+  
+  /* Sidebar Styling */
+  .leaflet-sidebar {
+    position: absolute;
+    top: 60px; /* Adjust as needed */
+    left: 0;
+    z-index: 1000; /* Higher than map for overlay */
+    height: auto;
+    width: 20%;
+    background: rgba(200, 255, 255, 0.8);
+    padding: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Title Panel Styling */
+  .title-panel {
+    position: absolute;
+    z-index: 1001; /* Even higher to overlay on sidebar */
+    top: 10px; /* Adjust as needed */
+    left: 10px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 5px;
+  }
+  
