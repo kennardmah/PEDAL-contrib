@@ -12,8 +12,8 @@ html, body {
     width: 100vw;
     z-index: 400; /* Ensure map is below overlaying elements */
     position: absolute;
-    top: 0;
-    left: 0;
+    top: 0px;
+    left: 0px;
   }
   
   /* Sidebar Styling */
@@ -21,7 +21,7 @@ html, body {
     position: absolute;
     top: 60px; /* Adjust as needed */
     left: 0;
-    z-index: 1000; /* Higher than map for overlay */
+    z-index: 800; /* Higher than map for overlay */
     height: auto;
     width: 20%;
     background: rgba(200, 255, 255, 0.8);
@@ -32,8 +32,8 @@ html, body {
   /* Title Panel Styling */
   .title-panel {
     position: absolute;
-    z-index: 1001; /* Even higher to overlay on sidebar */
-    top: 10px; /* Adjust as needed */
+    z-index: 1000;
+    top: 10px;
     left: 10px;
     background: rgba(255, 255, 255, 0.8);
     padding: 5px;
