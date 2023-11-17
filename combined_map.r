@@ -17,15 +17,10 @@ filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", 
 # Create a combined map
 combined_map <- leaflet() %>%
   addTiles() %>%  # Add default OpenStreetMap tiles
-  
   # Add infrastructure layers
   addPolylines(data = filtered_bike_lanes, color = "Green", weight = 3, opacity = 0.7, group = ~ExisFacil) %>%
-
   # Add accident markers for dark conditions
-  addCircleMarkers(data = bike_df[bike_df$isDark == 1], ~long, ~lat, popup = ~as.character(dispatch_ts), group = 'Dark Conditions', color = 'red', fillOpacity = 0.1, weight = 0, radius = 3) %>%
-
-  # Add accident markers for light conditions
-  addCircleMarkers(data = bike_df[bike_df$isDark == 0], ~long, ~lat, popup = ~as.character(dispatch_ts), group = 'Light Conditions', color = 'red', fillOpacity = 0.1, weight = 0, radius = 3)
+  addCircleMarkers(data = bike_df, ~long, ~lat, popup = ~as.character(dispatch_ts), group = 'Dark Conditions', color = 'red', fillOpacity = 0.2, weight = 0, radius = 3)
 
 # Display the combined map
 combined_map
