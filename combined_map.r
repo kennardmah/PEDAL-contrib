@@ -30,7 +30,8 @@ ui <- fluidPage(
 
 # Define server logic
 server <- function(input, output) {
-
+  # IMPORTANT: kills the process when closing the app
+  session$onSessionEnded(function() { stopApp() })
   # Provide descriptive text
   output$description <- renderText({
     "This data product visualizes bike accidents in relation 
@@ -51,8 +52,11 @@ server <- function(input, output) {
   output$map <- renderLeaflet({
     leaflet(filtered_bike_lanes) %>%
       addTiles() %>%
-      addPolylines(data = filtered_bike_lanes, color = "Green", weight = 3, opacity = 0.7, group = ~ExisFacil) %>%
-      addCircleMarkers(data = bike_df, ~long, ~lat, popup = ~as.character(dispatch_ts), color = 'red', fillOpacity = 0.2, weight = 0, radius = 3)
+      addPolylines(data = filtered_bike_lanes, color = "Green",
+                   weight = 3, opacity = 0.7, group = ~ExisFacil) %>%
+      addCircleMarkers(data = bike_df, ~long, ~lat,
+                       popup = ~as.character(dispatch_ts), color = "red",
+                       fillOpacity = 0.2, weight = 0, radius = 3)
   })
 }
 
