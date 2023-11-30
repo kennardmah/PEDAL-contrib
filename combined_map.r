@@ -14,7 +14,8 @@ ui <- fluidPage(
   ),
   # Title
   div(class = "title-panel",
-      tags$h1("PEDAL: Interactive Analysis of Cycling for Informed Decision Making")
+      tags$h1("CycleCompanion: Interactive Analysis 
+      of Cycling for Informed Decision Making")
   ),
   # Sidebar
   div(class = "leaflet-sidebar",
@@ -32,7 +33,10 @@ server <- function(input, output) {
 
   # Provide descriptive text
   output$description <- renderText({
-    "This data product visualizes bike accidents in relation to the existing bike infrastructure. Red markers indicate accidents that occurred in dark conditions, offering insights into potential areas for safety improvements."
+    "This data product visualizes bike accidents in relation 
+    to the existing bike infrastructure. Red markers indicate 
+    accidents that occurred in dark conditions, offering insights 
+    into potential areas for safety improvements."
   })
 
   # Load and prepare bike accident data
