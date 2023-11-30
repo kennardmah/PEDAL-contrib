@@ -14,7 +14,7 @@ ui <- fluidPage(
   ),
   # Title
   div(class = "title-panel",
-      tags$h1("CycleCompanion: Interactive Analysis of Cycling for Informed Decision Making")
+      tags$h1("PEDAL: Interactive Analysis of Cycling for Informed Decision Making")
   ),
   # Sidebar
   div(class = "leaflet-sidebar",
@@ -38,7 +38,6 @@ server <- function(input, output) {
   # Load and prepare bike accident data
   df <- fread("dataframe/vision-zero-crash.csv")
   bike_df <- df[df$mode_type == "bike"]
-  bike_df$isDark <- ifelse(as.integer(format(bike_df$dispatch_ts, "%H")) >= 15 | as.integer(format(bike_df$dispatch_ts, "%H")) < 6, 1, 0)
 
   # Load and filter infrastructure data
   bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson")
