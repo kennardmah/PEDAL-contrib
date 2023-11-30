@@ -14,7 +14,7 @@ ui <- fluidPage(
   ),
   # Title
   div(class = "title-panel",
-      tags$h1("CycleCompanion: Interactive Analysis 
+      tags$h1("PEDAL: Interactive Analysis 
       of Cycling for Informed Decision Making")
   ),
   # Sidebar
@@ -29,9 +29,10 @@ ui <- fluidPage(
 )
 
 # Define server logic
-server <- function(input, output) {
+server <- function(input, output, session) {
   # IMPORTANT: kills the process when closing the app
   session$onSessionEnded(function() { stopApp() })
+
   # Provide descriptive text
   output$description <- renderText({
     "This data product visualizes bike accidents in relation 
