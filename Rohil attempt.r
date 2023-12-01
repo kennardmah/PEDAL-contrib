@@ -12,21 +12,42 @@ ui <- fluidPage(
 
   theme = bslib::bs_theme(bootswatch = "flatly"),
 
-  sidebarLayout(
-    sidebarPanel(
-      br(),
-      br(),
-      checkboxInput("bCrash", "Crashes", value = FALSE),
-      checkboxInput("bBikeLane", "Bike Lanes", value = FALSE),
-      br(),
-      width = 2
+  tags$head(
+        tags$style(HTML("
+            .title-bar {
+                color: #FFF;
+                background-color: #6B8BFF;
+                padding: 10px;
+                text-align: center;
+                font-size: 24px;
+            }
+            .sidebar {
+                float: left;
+                width: 15%;
+                background-color: #E9EEFF;
+            }
+            .main-content {
+                float: right;
+                width: 85%;
+            }
+            .leaflet {
+                height: 800px;
+            }
+        "))
     ),
-
-    mainPanel(
-      h2("PEDAL: Bike Crash and Infrastructure Data in Boston"),
-      leafletOutput("map", height = 800)
+    div(class = "title-bar", "PEDAL: Visualizations for Cyclist Safety in Boston"),
+    div(class = "sidebar",
+        sidebarPanel(
+            br(),
+            br(),
+            checkboxInput("bCrash", "Crashes", value = TRUE),
+            checkboxInput("bBikeLane", "Bike Lanes", value = FALSE),
+            br()
+        )
+    ),
+    div(class = "main-content",
+        leafletOutput("map", width = "100%", height = "800px")
     )
-  )
 )
 
 
@@ -57,7 +78,7 @@ server <- function(input, output, session) {
 
   # Create and render the map
   output$map <- renderLeaflet({
-    # Defines coordinates for the center of Boston
+    # Defines coordinates for the center of Boston and as needed for aesthetics
     boston_lat <- 42.3150
     boston_long <- -71.0589
     zoom_level <- 12  # Adjust this to zoom in/out
