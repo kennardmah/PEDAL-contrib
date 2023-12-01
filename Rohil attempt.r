@@ -23,32 +23,31 @@ ui <- fluidPage(
             }
             .sidebar {
                 float: left;
-                width: 15%;  
-                padding-right: 0px; 
+                width: 25%;
+                height: 100%;
+                padding-right: 0px;
                 background-color: #E9EEFF;
             }
             .main-content {
                 float: right;
-                width: 85%; 
+                width: 75%; 
             }
             .leaflet {
                 height: 800px;
             }
             .checkbox-group {
-                padding: 0px;
+                padding-left: 40px;
             }
         "))
   ),
   div(class = "title-bar", "PEDAL: Visualization for Cyclist Safety in Boston"),
   div(class = "sidebar",
       div(class = "checkbox-group",
-            sidebarPanel(
               br(),
               br(),
-              checkboxInput("bCrash", "Crashes", value = TRUE),
-              checkboxInput("bBikeLane", "Bike Lanes", value = FALSE),
+              checkboxInput("bCrash", "Show Bike Accidents", value = TRUE),
+              checkboxInput("bBikeLane", " Show Bike Lanes", value = FALSE),
               br()
-            )
       )
   ),
   div(class = "main-content",
@@ -91,7 +90,8 @@ server <- function(input, output, session) {
 
     # A base Leaflet map centered on Boston
     map <- leaflet() %>%
-           addTiles() %>%
+           # Grayscaled map tile
+           addProviderTiles(providers$CartoDB.Positron) %>%
            setView(lng = boston_long, lat = boston_lat, zoom = zoom_level)
 
     # Conditionally adds bike lanes on check box of Bike Lanes
