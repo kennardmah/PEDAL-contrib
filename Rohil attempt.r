@@ -30,18 +30,18 @@ ui <- fluidPage(
 )
 
 
-# Define server logic
+# Defines server logic
 server <- function(input, output, session) {
   # IMPORTANT: kills the process when closing the app
   session$onSessionEnded(function() { stopApp() })
 
   thematic::thematic_shiny()
 
-  # Load and prepare bike accident data
+  # Loads and prepares bike accident data
   df <- fread("dataframe/vision-zero-crash.csv")
   bike_df <- df[df$mode_type == "bike"]
 
-  # Load and filter infrastructure data
+  # Loads and filters infrastructure data
   bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson")
   filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", "PED")))
 
@@ -58,7 +58,7 @@ server <- function(input, output, session) {
   # Create and render the map
   output$map <- renderLeaflet({
     # Defines coordinates for the center of Boston
-    boston_lat <- 42.3601
+    boston_lat <- 42.3150
     boston_long <- -71.0589
     zoom_level <- 12  # Adjust this to zoom in/out
 
@@ -66,7 +66,6 @@ server <- function(input, output, session) {
     map <- leaflet() %>%
            addTiles() %>%
            setView(lng = boston_long, lat = boston_lat, zoom = zoom_level)
-
 
     # Conditionally adds bike lanes on check box of Bike Lanes
     if(input$bBikeLane) {
@@ -81,10 +80,10 @@ server <- function(input, output, session) {
                                       fillOpacity = 0.2, weight = 0, radius = 3)
     }
 
-    # Return the modified map
+    # Returns the modified map
     map
   })
 }
 
-# Create Shiny app
+# Creates Shiny app
 shinyApp(ui, server)
