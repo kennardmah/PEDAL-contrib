@@ -14,55 +14,45 @@ ui <- fluidPage(
   # Custom CSS to adjust the layout
   tags$head(
     tags$style(HTML("
-      /* Full width layout adjustments */
-      .container-fluid {
-        padding-left: 0;
-        padding-right: 0;
-        padding-top: 0;
-        margin-top: 20;
-      }
-      /* Adjust width and height of sidebar to fill its parent */
-      .sidebar {
-        padding: 0;
-        border-right: 1px solid #ddd;
-        height: calc(100vh - 50px); /* Set height to full view height minus title bar */
-      }
-      .main {
-        padding: 0;
-        height: calc(100vh - 50px); /* Set height to full view height minus title bar */
-      }
-      /* Title bar styling */
-      .title-bar {
-        background-color: #06133E;
-        color: white;
-        padding: 10px;
-        font-size: 24px;
-        text-align: center;
-        height: 50px; /* Set a fixed height for the title bar */
-      }
-    "))
+            .title-bar {
+                color: #FFF;
+                background-color: #06133E;
+                padding: 10px;
+                text-align: center;
+                font-size: 24px;
+            }
+            .sidebar {
+                float: left;
+                width: 15%;  
+                padding-right: 0px; 
+                background-color: #E9EEFF;
+            }
+            .main-content {
+                float: right;
+                width: 85%; 
+            }
+            .leaflet {
+                height: 800px;
+            }
+            .checkbox-group {
+                padding: 0px;
+            }
+        "))
   ),
-
-  # Title bar
-  div(class = "title-bar",
-    "PEDAL: Visualizations for Cyclist Safety in Boston"
-  ),
-
-  # Main layout with sidebar and map
-  div(class = "container-fluid",
-    div(class = "row",
-      div(class = "col-sm-3 sidebar",
-        div(class = "sidebar-content",
-          wellPanel(
-            checkboxInput("bCrash", "Crashes", value = TRUE),
-            checkboxInput("bBikeLane", "Bike Lanes", value = FALSE)
-          )
-        )
-      ),
-      div(class = "col-sm-9 main",
-        leafletOutput("map")
+  div(class = "title-bar", "PEDAL: Visualization for Cyclist Safety in Boston"),
+  div(class = "sidebar",
+      div(class = "checkbox-group",
+            sidebarPanel(
+              br(),
+              br(),
+              checkboxInput("bCrash", "Crashes", value = TRUE),
+              checkboxInput("bBikeLane", "Bike Lanes", value = FALSE),
+              br()
+            )
       )
-    )
+  ),
+  div(class = "main-content",
+      leafletOutput("map", width = "100%", height = "1000px")
   )
 )
 
@@ -95,7 +85,7 @@ server <- function(input, output, session) {
   # Create and render the map
   output$map <- renderLeaflet({
     # Defines coordinates for the center of Boston and as needed for aesthetics
-    boston_lat <- 42.3550
+    boston_lat <- 42.3150
     boston_long <- -71.0589
     zoom_level <- 12  # Adjust this to zoom in/out
 
