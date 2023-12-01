@@ -45,18 +45,36 @@ server <- function(input, output, session) {
   bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson")
   filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", "PED")))
 
+  # Show the modal dialog when the app starts
+  showModal(modalDialog(
+      title = "Welcome to PEDAL",
+      "Explore bike crash data and infrastructure in Boston. 
+      Use the checkboxes to toggle between crash data and bike lanes.",
+      easyClose = TRUE, # When true, clicking outside the popup will close it
+      # Add an 'OK' button to the modal dialog, when clicked the popup is closed
+      footer = modalButton("OK!")
+  ))
+
   # Create and render the map
   output$map <- renderLeaflet({
-    # Start with a base Leaflet map
-    map <- leaflet(filtered_bike_lanes) %>% addTiles()
+    # Defines coordinates for the center of Boston
+    boston_lat <- 42.3601
+    boston_long <- -71.0589
+    zoom_level <- 12  # Adjust this to zoom in/out
 
-    # Conditionally add bike lanes
+    # A base Leaflet map centered on Boston
+    map <- leaflet() %>%
+           addTiles() %>%
+           setView(lng = boston_long, lat = boston_lat, zoom = zoom_level)
+
+
+    # Conditionally adds bike lanes on check box of Bike Lanes
     if(input$bBikeLane) {
       map <- map %>% addPolylines(data = filtered_bike_lanes, color = "Green",
                                   weight = 3, opacity = 0.7, group = ~ExisFacil)
     }
 
-    # Conditionally add crash locations
+    # Conditionally adds crash locations on check box of Crashes
     if(input$bCrash) {
       map <- map %>% addCircleMarkers(data = bike_df, ~long, ~lat,
                                       popup = ~as.character(dispatch_ts), color = "red",
