@@ -68,17 +68,18 @@ server <- function(input, output, session) {
   bike_df <- df[df$mode_type == "bike"]
 
   # Loads and filters infrastructure data
-  bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson")
-  filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", "PED")))
+  bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
+  filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", "PED"))) # nolint: line_length_linter.
 
   # Show the modal dialog when the app starts
   showModal(modalDialog(
-      title = "Welcome to PEDAL",
-      "Explore bike crash data and infrastructure in Boston. 
-      Use the checkboxes to toggle between crash data and bike lanes.",
-      easyClose = TRUE, # When true, clicking outside the popup will close it
-      # Add an 'OK' button to the modal dialog, when clicked the popup is closed
-      footer = modalButton("OK!")
+    title = "Welcome to PEDAL",
+    "Explore bike crash data and infrastructure in Boston. 
+    Use the checkboxes to toggle between crash data and bike lanes.",
+
+    easyClose = TRUE, # When true, clicking outside the popup will close it
+    # Add an 'OK' button to the modal dialog, when clicked the popup is closed
+    footer = modalButton("OK!")
   ))
 
   # Create and render the map
@@ -90,21 +91,22 @@ server <- function(input, output, session) {
 
     # A base Leaflet map centered on Boston
     map <- leaflet() %>%
-           # Grayscaled map tile
-           addProviderTiles(providers$CartoDB.Positron) %>%
-           setView(lng = boston_long, lat = boston_lat, zoom = zoom_level)
+      # Grayscaled map tile
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      setView(lng = boston_long, lat = boston_lat, zoom = zoom_level)
 
     # Conditionally adds bike lanes on check box of Bike Lanes
-    if(input$bBikeLane) {
+    if (input$bBikeLane) {
       map <- map %>% addPolylines(data = filtered_bike_lanes, color = "Green",
                                   weight = 3, opacity = 0.7, group = ~ExisFacil)
     }
 
     # Conditionally adds crash locations on check box of Crashes
-    if(input$bCrash) {
+    if (input$bCrash) {
       map <- map %>% addCircleMarkers(data = bike_df, ~long, ~lat,
-                                      popup = ~as.character(dispatch_ts), color = "red",
-                                      fillOpacity = 0.2, weight = 0, radius = 3)
+                                      popup = ~as.character(dispatch_ts),
+                                      color = "red", fillOpacity = 0.2,
+                                      weight = 0, radius = 3)
     }
 
     # Returns the modified map
