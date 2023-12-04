@@ -1,65 +1,120 @@
-# Load required libraries
+# Install packages if haven't already
+# install.packages(c('shiny', 'leaflet', 'sf', 'dplyr', 'thematic', 'data.table', 'ggplot2'))
+
+# Load in required libraries
 library(shiny)
 library(leaflet)
 library(sf)
 library(dplyr)
 library(data.table)
 library(ggplot2)
+library(thematic)
 
-# Define UI
 ui <- fluidPage(
-  # Reference "www/styles.css"
+  theme = bslib::bs_theme(bootswatch = "flatly"),
+  
+  # Custom CSS to adjust the layout
   tags$head(
-    tags$link(rel = "stylesheet", type = "text/css", href = "styles.css")
+    tags$style(HTML("
+            .title-bar {
+                color: #FFF;
+                background-color: #06133E;
+                padding: 10px;
+                text-align: center;
+                font-size: 24px;
+            }
+            .sidebar {
+                float: left;
+                width: 25%;
+                height: 100%;
+                padding-right: 0px;
+                background-color: #E9EEFF;
+            }
+            .main-content {
+                float: right;
+                width: 75%; 
+            }
+            .leaflet {
+                height: 800px;
+            }
+            .checkbox-group {
+                padding-left: 40px;
+            }
+        "))
   ),
-  # Title
-  div(class = "title-panel",
-      tags$h1("PEDAL: Interactive Analysis 
-      of Cycling for Informed Decision Making")
-  ),
-  # Sidebar
-  div(class = "leaflet-sidebar",
-      sidebarPanel(
-        HTML("<h4>Description</h4>"),
-        textOutput("description")
+  div(class = "title-bar", "PEDAL: Visualization for Cyclist Safety in Boston"),
+  div(class = "sidebar",
+      div(class = "checkbox-group",
+              br(),
+              br(),
+              checkboxInput("bCrash", "Show Bike Accidents", value = TRUE),
+              checkboxInput("bBikeLane", " Show Bike Lanes", value = FALSE),
+              br()
       )
   ),
-  # Underlying Map
-  leafletOutput("map")
+  div(class = "main-content",
+      leafletOutput("map", width = "100%", height = "1000px")
+  )
 )
 
-# Define server logic
+
+# Defines server logic
 server <- function(input, output, session) {
   # IMPORTANT: kills the process when closing the app
   session$onSessionEnded(function() { stopApp() })
 
-  # Provide descriptive text
-  output$description <- renderText({
-    "This data product visualizes bike accidents in relation 
-    to the existing bike infrastructure. Red markers indicate 
-    accidents that occurred in dark conditions, offering insights 
-    into potential areas for safety improvements."
-  })
+  thematic::thematic_shiny()
 
-  # Load and prepare bike accident data
+  # Loads and prepares bike accident data
   df <- fread("dataframe/vision-zero-crash.csv")
   bike_df <- df[df$mode_type == "bike"]
 
-  # Load and filter infrastructure data
-  bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson")
-  filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", "PED")))
+  # Loads and filters infrastructure data
+  bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
+  filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", "PED"))) # nolint: line_length_linter.
+
+  # Show the modal dialog when the app starts
+  showModal(modalDialog(
+    title = "Welcome to PEDAL",
+    "Explore bike crash data and infrastructure in Boston. 
+    Use the checkboxes to toggle between crash data and bike lanes.",
+
+    easyClose = TRUE, # When true, clicking outside the popup will close it
+    # Add an 'OK' button to the modal dialog, when clicked the popup is closed
+    footer = modalButton("OK!")
+  ))
 
   # Create and render the map
   output$map <- renderLeaflet({
-    leaflet(filtered_bike_lanes) %>%
-      addTiles() %>%
-      addPolylines(data = filtered_bike_lanes, color = "Green",
-                   weight = 3, opacity = 0.7, group = ~ExisFacil) %>%
-      addCircleMarkers(data = bike_df, ~long, ~lat,
-                       popup = ~as.character(dispatch_ts), color = "red",
-                       fillOpacity = 0.2, weight = 0, radius = 3)
+    # Defines coordinates for the center of Boston and as needed for aesthetics
+    boston_lat <- 42.3150
+    boston_long <- -71.0589
+    zoom_level <- 12  # Adjust this to zoom in/out
+
+    # A base Leaflet map centered on Boston
+    map <- leaflet() %>%
+      # Grayscaled map tile
+      addProviderTiles(providers$CartoDB.Positron) %>%
+      setView(lng = boston_long, lat = boston_lat, zoom = zoom_level)
+
+    # Conditionally adds bike lanes on check box of Bike Lanes
+    if (input$bBikeLane) {
+      map <- map %>% addPolylines(data = filtered_bike_lanes, color = "Green",
+                                  weight = 3, opacity = 0.7, group = ~ExisFacil)
+    }
+
+    # Conditionally adds crash locations on check box of Crashes
+    if (input$bCrash) {
+      map <- map %>% addCircleMarkers(data = bike_df, ~long, ~lat,
+                                      popup = ~as.character(dispatch_ts),
+                                      color = "red", fillOpacity = 0.2,
+                                      weight = 0, radius = 3)
+    }
+
+    # Returns the modified map
+    map
   })
 }
 
-# Create Shiny app
+# Creates Shiny app
 shinyApp(ui, server)
