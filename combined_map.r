@@ -138,12 +138,10 @@ server <- function(input, output, session) {
   thematic::thematic_shiny()
 
   # Loads and prepares bike accident data
-  df <- fread("dataframe/pre-processed/vision-zero-crash.csv")
-  bike_df <- df[df$mode_type == "bike"]
+  accidents_df <- fread("dataframe/post-processed/vision-zero-crash.csv")
 
   # Loads and filters infrastructure data
-  bike_lanes_geojson <- sf::read_sf("dataframe/pre-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
-  filtered_bike_lanes <- bike_lanes_geojson %>% filter(!(ExisFacil %in% c("WALK", "PED"))) # nolint: line_length_linter.
+  filtered_bike_lanes <- sf::read_sf("dataframe/pre-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
 
   # Show the modal dialog when the app starts
   showModal(modalDialog(
@@ -185,12 +183,12 @@ server <- function(input, output, session) {
     # Conditionally adds bike lanes on check box of Bike Lanes
     if (input$bBikeLane) {
       map <- map %>% addPolylines(data = filtered_bike_lanes, color = "Green",
-                                  weight = 3, opacity = 0.7, group = ~ExisFacil)
+                                  weight = 3, opacity = 0.7)
     }
 
     # Conditionally adds crash locations on check box of Crashes
     if (input$bCrash) {
-      map <- map %>% addCircleMarkers(data = bike_df, ~long, ~lat,
+      map <- map %>% addCircleMarkers(data = accidents_df, ~long, ~lat,
                                       popup = ~as.character(dispatch_ts),
                                       color = "red", fillOpacity = 0.2,
                                       weight = 0, radius = 3)
