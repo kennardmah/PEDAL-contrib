@@ -87,7 +87,7 @@ server <- function(input, output, session) {
     case_when(
       laneType == "NPSNB" ~ "blue",   # Assign blue color to NPSNB
       laneType == "S" ~ "green",      # Assign green color to S
-      laneType == "NPSB" ~ "yellow",  # Assign yellow color to NPSB
+      laneType == "NPSB" ~ "orange",  # Assign orange color to NPSB
       TRUE ~ "gray"                   # Default color for any other types
     )
   }
