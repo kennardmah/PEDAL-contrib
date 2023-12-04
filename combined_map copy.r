@@ -13,7 +13,6 @@ library(thematic)
 
 ui <- fluidPage(
   theme = bslib::bs_theme(bootswatch = "flatly"),
-  
   # Custom CSS to adjust the layout
   tags$head(
     tags$style(HTML("
@@ -49,7 +48,7 @@ ui <- fluidPage(
               br(),
               br(),
               checkboxInput("bCrash", "Show Bike Accidents", value = TRUE),
-              checkboxInput("bBikeLane", " Show Bike Lanes", value = FALSE),
+              checkboxInput("bBikeLane", " Show Bike Lanes", value = TRUE),
               br()
       )
   ),
@@ -67,10 +66,11 @@ server <- function(input, output, session) {
   thematic::thematic_shiny()
 
   # Loads and prepares bike accident data
-  accidents_df <- fread("dataframe/post-processed/vision-zero-crash.csv")
+  df <- fread("dataframe/post-processed/vision-zero-crash.csv")
+  bike_df <- df[df$mode_type == "bike"]
 
   # Loads and filters infrastructure data
-  filtered_bike_lanes <- sf::read_sf("dataframe/pre-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
+  filtered_bike_lanes <- sf::read_sf("dataframe/post-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
 
   # Show the modal dialog when the app starts
   showModal(modalDialog(
@@ -82,6 +82,15 @@ server <- function(input, output, session) {
     # Add an 'OK' button to the modal dialog, when clicked the popup is closed
     footer = modalButton("OK!")
   ))
+    # Function to determine color based on laneType
+  getLaneColor <- function(laneType) {
+    case_when(
+      laneType == "NPSNB" ~ "blue",   # Assign blue color to NPSNB
+      laneType == "S" ~ "green",      # Assign green color to S
+      laneType == "NPSB" ~ "yellow",  # Assign yellow color to NPSB
+      TRUE ~ "gray"                   # Default color for any other types
+    )
+  }
 
   # Create and render the map
   output$map <- renderLeaflet({
@@ -98,13 +107,14 @@ server <- function(input, output, session) {
 
     # Conditionally adds bike lanes on check box of Bike Lanes
     if (input$bBikeLane) {
-      map <- map %>% addPolylines(data = filtered_bike_lanes, color = "Green",
+      map <- map %>% addPolylines(data = filtered_bike_lanes,
+                                  color = ~getLaneColor(laneType),
                                   weight = 3, opacity = 0.7)
     }
 
     # Conditionally adds crash locations on check box of Crashes
     if (input$bCrash) {
-      map <- map %>% addCircleMarkers(data = accidents_df, ~long, ~lat,
+      map <- map %>% addCircleMarkers(data = bike_df, ~long, ~lat,
                                       popup = ~as.character(dispatch_ts),
                                       color = "red", fillOpacity = 0.2,
                                       weight = 0, radius = 3)

@@ -2,23 +2,28 @@
 library(leaflet)
 library(sf)
 library(dplyr)
+library(data.table)
 
-# Read the GeoJSON file
-bike_lanes_geojson <- sf::read_sf("dataframe/Existing_Bike_Network_2023.geojson")
-
-# Filter out 'WALK' and 'PED' bike lanes
-filtered_bike_lanes <- bike_lanes_geojson %>% 
+# Loads and filters infrastructure data
+bike_lanes_geojson <- sf::read_sf(
+  "dataframe/pre-processed/Existing_Bike_Network_2023.geojson")
+filtered_bike_lanes <- bike_lanes_geojson %>%
   filter(!(ExisFacil %in% c("WALK", "PED")))
 
-# Add bike lanes to the map with color based on type
-infrastructure <- leaflet(filtered_bike_lanes) %>%
-  addTiles() %>%  # Add default OpenStreetMap tiles
-  addPolylines(
-    color = "Green",
-    weight = 3,  # Set line weight to 1
-    opacity = 0.7,
-    group = ~ExisFacil
-  )
+# Add a new column 'laneType' for cycling lane type and select desired columns
+filtered_bike_lanes <- filtered_bike_lanes %>%
+  mutate(laneType = case_when(
+    ExisFacil %in% c("BL", "SBLBL") ~ "NPSNB",
+    ExisFacil %in% c("BL-PEAKBUS", "BLSL", "CFBL",
+                     "SBLSL", "SLM", "SLMTC", "SUP", "SUPN", "SUPM") ~ "S",
+    ExisFacil == "BFBL" ~ "NPSB",
+    ExisFacil %in% c("SBL", "CFSBL") ~ "PS",
+    TRUE ~ NA_character_ 
+  )) %>%
+  filter(!is.na(laneType)) %>% # remove NA row (there is only 1)
+  # remove un-used columns
+  select(STREET_NAM, Shape_Leng, Shape__Length, geometry, laneType)
 
-# Display the map
-infrastructure
+# Output this to post-processed
+sf::st_write(filtered_bike_lanes,
+             "dataframe/post-processed/Existing_Bike_Network_2023.geojson")
