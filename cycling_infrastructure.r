@@ -22,7 +22,7 @@ filtered_bike_lanes <- filtered_bike_lanes %>%
   )) %>%
   filter(!is.na(laneType)) %>% # remove NA row (there is only 1)
   # remove un-used columns
-  select(STREET_NAM, Shape_Leng, Shape__Length, geometry, laneType)
+  # select(STREET_NAM, Shape_Leng, Shape__Length, geometry, laneType)
 
 # Output this to post-processed
 sf::st_write(filtered_bike_lanes,
