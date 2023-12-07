@@ -142,6 +142,9 @@ server <- function(input, output, session) {
 
   # Loads and filters infrastructure data
   filtered_bike_lanes <- sf::read_sf("dataframe/pre-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
+  
+  # Loads Boston neighborhood boundary data
+  neighborhoods <- sf::read_sf("dataframe/pre-processed/Boston_Neighborhood_Boundaries_approximated_by_2020_Census_Block_Groups.geojson")
 
   # Show the modal dialog when the app starts
   showModal(modalDialog(
@@ -153,19 +156,6 @@ server <- function(input, output, session) {
     # Add an 'OK' button to the modal dialog, when clicked the popup is closed
     footer = modalButton("OK!")
   ))
-  
-  # Reactive expression to fetch air pollution data
-  air_pollution_data <- reactive({
-    if(input$bPM2.5 | input$bNO2) {
-      data <- fetch_pollution_data_all(coordinates, api_key)
-      print("Air Pollution Data:")
-      print(data)
-      write.csv(data, "AQ_data.csv", row.names = FALSE)
-      return(data)
-    } else {
-      return(NULL)
-    }
-  })
 
   # Create and render the map
   output$map <- renderLeaflet({
@@ -194,23 +184,12 @@ server <- function(input, output, session) {
                                       weight = 0, radius = 3)
     }
     
-    # Conditionally adds PM heat map on check box of PM2.5 Level
-    if (input$bPM2.5 && !is.null(air_pollution_data())) {
-      map <- map %>% addHeatmap( data = air_pollution_data(), lng = ~longitude,
-                                 lat = ~latitude, intensity = ~pm2_5_level,
-                                 blur = 10, min = 6, max = 7.5, radius = 20,
-                                 gradient = c(0, "green", 1, "yellow")  # Blue to red gradient
-      )
+    # Conditionally adds neighborhood boundaries on check box of PM2.5
+    if (input$bPM2.5) {
+      map <- map %>% addPolygons(data = neighborhoods, color = "#0000FF",
+                                 weight = 0.5, opacity = 0.5, fillOpacity = 0.2)
     }
     
-    # Conditionally adds Nitrogen dioxide heat map on check box of PM2.5 Level
-    if (input$bNO2 && !is.null(air_pollution_data())) {
-      map <- map %>% addHeatmap( data = air_pollution_data(), lng = ~longitude,
-                                 lat = ~latitude, intensity = ~no2_level,
-                                 blur = 10, min = 20, max = 30, radius = 20,
-                                 gradient = c(0, "blue", 1, "red")  # Blue to red gradient
-      )
-    }
 
     # Returns the modified map
     map
