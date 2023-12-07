@@ -198,8 +198,8 @@ server <- function(input, output, session) {
     if (input$bPM2.5 && !is.null(air_pollution_data())) {
       map <- map %>% addHeatmap( data = air_pollution_data(), lng = ~longitude,
                                  lat = ~latitude, intensity = ~pm2_5_level,
-                                 blur = 10, min = 0, max = 3, radius = 20,
-                                 gradient = c(0, "blue", 1, "red")  # Blue to red gradient
+                                 blur = 10, min = 6, max = 7.5, radius = 20,
+                                 gradient = c(0, "green", 1, "yellow")  # Blue to red gradient
       )
     }
     
@@ -207,7 +207,7 @@ server <- function(input, output, session) {
     if (input$bNO2 && !is.null(air_pollution_data())) {
       map <- map %>% addHeatmap( data = air_pollution_data(), lng = ~longitude,
                                  lat = ~latitude, intensity = ~no2_level,
-                                 blur = 10, min = 0, max = 15, radius = 20,
+                                 blur = 10, min = 20, max = 30, radius = 20,
                                  gradient = c(0, "blue", 1, "red")  # Blue to red gradient
       )
     }
