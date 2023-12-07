@@ -18,7 +18,7 @@ library(jsonlite)
 library(leaflet.extras)
 
 # API Key - replace with your actual API key
-api_key <- "db7885f17d325108abb266d409030cc3"
+api_key <- "key"
 
 # Center coordinates
 center_lat <- 42.3150
