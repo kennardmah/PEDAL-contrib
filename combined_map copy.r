@@ -44,16 +44,16 @@ ui <- fluidPage(
   ),
   div(class = "title-bar", "PEDAL: Visualization for Cyclist Safety in Boston"),
   div(class = "sidebar",
-      div(class = "checkbox-group",
-              br(),
-              br(),
-              checkboxInput("bCrash", "Show Bike Accidents", value = TRUE),
-              checkboxInput("bBikeLane", " Show Bike Lanes", value = TRUE),
-              br()
-      )
+    div(class = "checkbox-group",
+      br(),
+      br(),
+      checkboxInput("bCrash", "Show Bike Accidents", value = TRUE),
+      checkboxInput("bBikeLane", " Show Bike Lanes", value = TRUE),
+      br()
+    )
   ),
   div(class = "main-content",
-      leafletOutput("map", width = "100%", height = "1000px")
+    leafletOutput("map", width = "100%", height = "1000px")
   )
 )
 
