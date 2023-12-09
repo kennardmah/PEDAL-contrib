@@ -1,9 +1,8 @@
 # Install and load the sf package
 library(sf)
+library(leaflet)
 
-file_path <- "dataframe/pre-processed/
-             Boston_Neighborhood_Boundaries_approximated_by_2020
-             _Census_Block_Groups.geojson"
+file_path <- "dataframe/pre-processed/Boston_Neighborhood_Boundaries_approximated_by_2020_Census_Block_Groups.geojson"
 
 # Read the GeoJSON file
 geo_data <- st_read(file_path)
@@ -24,21 +23,23 @@ centroid_data <- data.frame(
   latitude = lat
 )
 
-# Save CSV file
-write.csv(centroid_data, "dataframe/post-processed/name-to-coordinates.csv", row.names = FALSE)
+# Save CSV file (if haven't)
+# write.csv(centroid_data, "dataframe/post-processed/name-to-coordinates.csv", row.names = FALSE)
 
 
 ### TEST BY MAPPING ON LEAFLET ###
 
-# # Calculate centroids and add them to the geo_data
-# processed_data$longitude <- st_coordinates(st_centroid(processed_data$geometry))[,1]
-# processed_data$latitude <- st_coordinates(st_centroid(processed_data$geometry))[,2]
+# Calculate centroids and add them to the geo_data
+processed_data$longitude <- st_coordinates(st_centroid(processed_data$geometry))[,1]
+processed_data$latitude <- st_coordinates(st_centroid(processed_data$geometry))[,2]
 
-# # Create a leaflet map with a minimal base map
-# leaflet(processed_data) %>%
-#   addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(noWrap = TRUE)) %>%
-#   addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
-#               opacity = 1.0, fillOpacity = 0.6,
-#               highlight = highlightOptions(weight = 3, color = "#666", fillOpacity = 0.7)) %>%
-#   addCircleMarkers(lng = ~longitude, lat = ~latitude, 
-#                    radius = 5, color = "#007bff", stroke = FALSE, fillOpacity = 1)
+# Create a leaflet map with a minimal base map
+map <- leaflet(processed_data) %>%
+  addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(noWrap = TRUE)) %>%
+  addPolygons(color = "#444444", weight = 1, smoothFactor = 0.5,
+              opacity = 1.0, fillOpacity = 0.6,
+              highlight = highlightOptions(weight = 3, color = "#666", fillOpacity = 0.7)) %>%
+  addCircleMarkers(lng = ~longitude, lat = ~latitude, 
+                   radius = 5, color = "#007bff", stroke = FALSE, fillOpacity = 1)
+
+map
