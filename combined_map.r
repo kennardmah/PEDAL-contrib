@@ -12,7 +12,7 @@ library(data.table)
 library(ggplot2)
 library(thematic)
 
-#--------------------TESTING AIR QUALITY----------------------------------------
+
 library(httr)
 library(jsonlite)
 library(leaflet.extras)
@@ -20,25 +20,15 @@ library(leaflet.extras)
 # API Key - replace with your actual API key
 api_key <- "key"
 
-# Center coordinates
-center_lat <- 42.3150
-center_lon <- -71.0589
-num_points <- 14  # for a 10x10 grid
-offset <- 0.01  # Adjust as needed for distance between points
+# Loads and prepares bike accident data
+accidents_df <- fread("dataframe/post-processed/vision-zero-crash.csv")
 
-# Creates grid of 5 by 5 locations around center coordinates
-generate_grid_coordinates <- function(center_lat, center_lon, num_points, offset) {
-  grid <- expand.grid(lat = seq(from = center_lat - offset * (num_points / 2), 
-                                to = center_lat + offset * (num_points / 2), 
-                                by = offset),
-                      lon = seq(from = center_lon - offset * (num_points / 2), 
-                                to = center_lon + offset * (num_points / 2), 
-                                by = offset))
-  return(grid)
-}
+# Loads and filters infrastructure data
+filtered_bike_lanes <- sf::read_sf("dataframe/pre-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
 
-# Generate grid coordinates
-coordinates <- generate_grid_coordinates(center_lat, center_lon, num_points, offset)
+# Loads Boston neighborhood boundary data
+neighborhoods <- sf::read_sf("dataframe/pre-processed/Boston_Neighborhood_Boundaries_approximated_by_2020_Census_Block_Groups.geojson")
+
 
 # Function to fetch and process air pollution data for a single point
 fetch_pollution_data <- function(lat, lon, api_key) {
@@ -46,39 +36,8 @@ fetch_pollution_data <- function(lat, lon, api_key) {
                 lat, "&lon=", lon, "&appid=", api_key)
   response <- GET(url)
   data <- fromJSON(rawToChar(response$content))
-  
-  # Print the entire data structure
-  print(data)
-  
-  # Check if the expected data is present
-  if(!is.null(data$list) && !is.null(data$list$components) && !is.null(data$list$components$pm2_5)) {
-    # Process the data and return a dataframe
-    processed_data <- data.frame(
-      latitude = lat,
-      longitude = lon,
-      pm2_5_level = data$list$components$pm2_5,  # Example for PM2.5 levels
-      no2_level = data$list$components$no2  # for NO2 levels
-    )
-    return(processed_data)
-  } else {
-    # Return an empty dataframe or handle the error appropriately
-    return(data.frame(latitude = numeric(0), longitude = numeric(0), pollution_level = numeric(0)))
-  }
 }
 
-# Function to fetch and process air pollution data for all specified coordinates 
-fetch_pollution_data_all <- function(coordinates, api_key) {
-  all_data <- lapply(1:nrow(coordinates), function(i) {
-    fetch_pollution_data(coordinates$lat[i], coordinates$lon[i], api_key)
-  })
-  do.call(rbind, all_data)
-}
-
-# Fetch and print data for all locations
-# fetched_data <- fetch_pollution_data_all(coordinates, api_key)
-# print("Processed Data for All Locations:")
-# print(fetched_data)
-#-------------------------------------------------------------------------------
 
 ui <- fluidPage(
   theme = bslib::bs_theme(bootswatch = "flatly"),
@@ -136,15 +95,6 @@ server <- function(input, output, session) {
   session$onSessionEnded(function() { stopApp() })
 
   thematic::thematic_shiny()
-
-  # Loads and prepares bike accident data
-  accidents_df <- fread("dataframe/post-processed/vision-zero-crash.csv")
-
-  # Loads and filters infrastructure data
-  filtered_bike_lanes <- sf::read_sf("dataframe/pre-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
-  
-  # Loads Boston neighborhood boundary data
-  neighborhoods <- sf::read_sf("dataframe/pre-processed/Boston_Neighborhood_Boundaries_approximated_by_2020_Census_Block_Groups.geojson")
 
   # Show the modal dialog when the app starts
   showModal(modalDialog(
