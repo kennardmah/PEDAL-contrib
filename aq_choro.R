@@ -57,7 +57,7 @@ fetch_pollution_data <- function(lat, lon, api_key) {
   }
 }
 
-# Correct the fetch_pollution_data_all function
+# Fetches AQ data for all the neighborhood centroid points
 fetch_pollution_data_all <- function(centroid_data, api_key) {
   all_data <- lapply(1:nrow(centroid_data), function(i) {
     fetch_pollution_data(centroid_data$centre_lat[i], centroid_data$centre_lon[i], api_key)
@@ -68,30 +68,37 @@ fetch_pollution_data_all <- function(centroid_data, api_key) {
 # Call the fetch_pollution_data_all function instead of fetch_pollution_data
 air_quality_results <- fetch_pollution_data_all(centroid_data, api_key)
 
+# Merge the data
 merged_final_data <- merge(centroid_data, air_quality_results, by = c("centre_lat", "centre_lon"))
 
+# Convert to spatial dataframe to allow for map visualisation
 final_data_sf <- st_as_sf(merged_final_data, sf_column_name = "geometry")
+
+#Sort alphabetically by neighborhood name
+final_data_sf <- final_data_sf %>%
+  arrange(name)
 
 map <- leaflet(final_data_sf) %>%
   addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(noWrap = TRUE)) %>%
   addPolygons(
     fillColor = ~colorNumeric(palette = "YlOrRd", domain = final_data_sf$pm2_5_level)(pm2_5_level),
     weight = 2,
-    opacity = 1,
+    opacity = 0.3,
     color = "white",
     dashArray = "3",
-    fillOpacity = 0.7,
+    fillOpacity = 0.7, 
     highlightOptions = highlightOptions(
       weight = 5,
-      color = "white",
+      color = "orange",
       dashArray = "",
-      fillOpacity = 0.7,
+      fillOpacity = 1,
       bringToFront = TRUE),
-    label = ~paste0("PM2.5 Level: ", pm2_5_level),
+    label = ~paste(name, "<br>PM2.5 Level:", pm2_5_level, "micrograms /m^3"),
     labelOptions = labelOptions(
       style = list("font-weight" = "normal", padding = "3px 8px"),
       textsize = "15px",
-      direction = "auto"),
+      direction = "auto",
+      html = TRUE),
     smoothFactor = 0.5,
     group = "Neighborhoods"
   )
