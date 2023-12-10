@@ -4,6 +4,7 @@ library(leaflet)
 library(httr)
 library(jsonlite)
 library(dplyr)
+library(RColorBrewer)
 
 # API Key - replace with your actual API key
 api_key <- "9cf634461389fa0f5ab332e7c49f22ad"
@@ -81,26 +82,26 @@ final_data_sf <- final_data_sf %>%
 map <- leaflet(final_data_sf) %>%
   addProviderTiles(providers$CartoDB.Positron, options = providerTileOptions(noWrap = TRUE)) %>%
   addPolygons(
-    fillColor = ~colorNumeric(palette = "YlOrRd", domain = final_data_sf$pm2_5_level)(pm2_5_level),
+    fillColor = ~colorNumeric(palette = c("#00FFFF", "#0439FF"), domain = c(0,20))(pm2_5_level),
     weight = 2,
     opacity = 0.3,
     color = "white",
-    dashArray = "3",
+    dashArray = "",
     fillOpacity = 0.7, 
     highlightOptions = highlightOptions(
       weight = 5,
+      opacity = 0.9,
       color = "orange",
-      dashArray = "",
+      dashArray = "1",
       fillOpacity = 1,
       bringToFront = TRUE),
-    label = ~paste(name, "<br>PM2.5 Level:", pm2_5_level, "micrograms /m^3"),
+    label = ~paste(name, "PM2.5 Level:", pm2_5_level, "μg/m^3"),
     labelOptions = labelOptions(
       style = list("font-weight" = "normal", padding = "3px 8px"),
       textsize = "15px",
-      direction = "auto",
-      html = TRUE),
+      direction = "auto"),
     smoothFactor = 0.5,
     group = "Neighborhoods"
-  )
+    )
 
 map
