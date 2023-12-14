@@ -127,7 +127,7 @@ ui <- fluidPage(
                 padding-left: 40px;
             }
             .sidebar-image {
-                width: 25%;
+                width: 100%;
                 padding: 10px 0;
             }
         "))
