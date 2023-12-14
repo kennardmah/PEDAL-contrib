@@ -167,7 +167,7 @@ server <- function(input, output, session) {
 
   # Show the modal dialog when the app starts
   showModal(modalDialog(
-    title = "Welcome to PEDAL",
+    title = HTML('Welcome to    <img src="logo.png" style="height: 50px; width: auto;"/>'),
     HTML("Explore bike crash data and infrastructure in Boston.<br><br> 
     Use the checkboxes to toggle between crash data, bike lanes and pollution metrics.<br><br>
     Disclaimer: There may be discreprencies between PEDAL's data and
