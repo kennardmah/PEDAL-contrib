@@ -1,4 +1,4 @@
-# this file is for cleaning the accident data
+# this file is for preparing the accident data
 
 # Load packages
 library(data.table)
