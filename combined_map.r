@@ -56,7 +56,7 @@ fetch_pollution_data <- function(lat, lon, api_key) {
   data <- fromJSON(rawToChar(response$content))
   
   # Print the entire data structure
-  print(data)
+  # print(data)
   
   # Check if the expected data is present
   if(!is.null(data$list) && !is.null(data$list$components) && !is.null(data$list$components$pm2_5)) {
@@ -105,7 +105,7 @@ ui <- fluidPage(
             .title-bar {
                 color: #FFF;
                 background-color: #06133E;
-                padding: 10px;
+                padding: 20px;
                 text-align: center;
                 font-size: 24px;
             }
@@ -126,6 +126,10 @@ ui <- fluidPage(
             .checkbox-group {
                 padding-left: 40px;
             }
+            .sidebar-image {
+                width: 25%;
+                padding: 10px 0;
+            }
         "))
   ),
   div(class = "title-bar", "PEDAL: Visualization for Cyclist Safety in Boston"),
@@ -138,7 +142,9 @@ ui <- fluidPage(
               checkboxInput("bPM2.5", "Show PM2.5 Level", value = FALSE),
               checkboxInput("bNO2", "Show NO2 Level", value = FALSE),
               br()
-      )
+      ),
+      
+      img(src = "legend.jpeg", class = "sidebar-image"),
   ),
   div(class = "main-content",
       leafletOutput("map", width = "100%", height = "1000px")
