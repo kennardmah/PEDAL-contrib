@@ -20,7 +20,7 @@ library(leaflet.extras)
 accidents_df <- fread("dataframe/post-processed/vision-zero-crash.csv")
 
 # Loads and filters infrastructure data
-filtered_bike_lanes <- sf::read_sf("dataframe/pre-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
+filtered_bike_lanes <- sf::read_sf("dataframe/post-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
 
 # API Key - replace with your actual API key
 api_key <- "9cf634461389fa0f5ab332e7c49f22ad"
@@ -188,7 +188,7 @@ server <- function(input, output, session) {
 
     # Conditionally adds bike lanes on check box of Bike Lanes
     if (input$bBikeLane) {
-      map <- map %>% addPolylines(data = filtered_bike_lanes, color = "Green",
+      map <- map %>% addPolylines(data = filtered_bike_lanes, color = ~laneType,
                                   weight = 3, opacity = 0.7)
     }
 
