@@ -195,7 +195,7 @@ server <- function(input, output, session) {
     # Conditionally adds PM2.5 choropleth / heatmap for neighborhoods
     if (input$bPM2.5) {
       map <- map %>% addPolygons(data = final_data_sf,
-                                 fillColor = ~colorNumeric(palette = c("cyan", "navy"), domain = c(0,75))(pm2_5_level),
+                                 fillColor = ~colorNumeric(palette = c("cyan", "navy"), domain = c(0,100))(pm2_5_level),
                                  weight = 2,
                                  opacity = 0.3,
                                  color = "white",
@@ -221,7 +221,7 @@ server <- function(input, output, session) {
     # Conditionally adds nitrogen dioxide choropleth / heatmap for neighborhoods
     if (input$bNO2) {
       map <- map %>% addPolygons(data = final_data_sf,
-                                 fillColor = ~colorNumeric(palette = c("green", "red"), domain = c(0,200))(no2_level),
+                                 fillColor = ~colorNumeric(palette = c("green", "red"), domain = c(0,150))(no2_level),
                                  weight = 2,
                                  opacity = 0.3,
                                  color = "white",
