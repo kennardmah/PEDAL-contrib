@@ -1,5 +1,4 @@
 # TESTING AIR QUALITY API CALLS
-
 library(httr)
 library(jsonlite)
 
@@ -14,11 +13,11 @@ offset <- 0.10  # Adjust as needed for distance between points
 
 # Creates grid of 5 by 5 locations around center coordinates
 generate_grid_coordinates <- function(center_lat, center_lon, num_points, offset) {
-  grid <- expand.grid(lat = seq(from = center_lat - offset * (num_points / 2), 
-                                to = center_lat + offset * (num_points / 2), 
+  grid <- expand.grid(lat = seq(from = center_lat - offset * (num_points / 2),
+                                to = center_lat + offset * (num_points / 2),
                                 by = offset),
-                      lon = seq(from = center_lon - offset * (num_points / 2), 
-                                to = center_lon + offset * (num_points / 2), 
+                      lon = seq(from = center_lon - offset * (num_points / 2),
+                                to = center_lon + offset * (num_points / 2),
                                 by = offset))
   return(grid)
 }
@@ -32,7 +31,7 @@ fetch_pollution_data <- function(lat, lon, api_key) {
                 lat, "&lon=", lon, "&appid=", api_key)
   response <- GET(url)
   data <- fromJSON(rawToChar(response$content))
-  
+
   # Print the entire data structure
   print(data)
   
@@ -48,11 +47,13 @@ fetch_pollution_data <- function(lat, lon, api_key) {
     return(processed_data)
   } else {
     # Return an empty dataframe or handle the error appropriately
-    return(data.frame(latitude = numeric(0), longitude = numeric(0), pollution_level = numeric(0)))
+    return(data.frame(latitude = numeric(0),
+                      longitude = numeric(0),
+                      pollution_level = numeric(0)))
   }
 }
 
-# Function to fetch and process air pollution data for all specified coordinates 
+# Function to fetch and process air pollution data for all specified coordinates
 fetch_pollution_data_all <- function(coordinates, api_key) {
   all_data <- lapply(1:nrow(coordinates), function(i) {
     fetch_pollution_data(coordinates$lat[i], coordinates$lon[i], api_key)
