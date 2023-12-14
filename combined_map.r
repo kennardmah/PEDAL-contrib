@@ -138,7 +138,7 @@ ui <- fluidPage(
         "))
   ),
   div(class = "title-bar", 
-      img(src = "logo.png", class = "title-image"), ": Visualizations for Cyclist Safety in Boston"),
+      img(src = "pedal_white.png", class = "title-image"), ": Visualisations for Cyclist Safety in Boston"),
   div(class = "sidebar",
       div(class = "checkbox-group",
               br(),
@@ -168,11 +168,11 @@ server <- function(input, output, session) {
   # Show the modal dialog when the app starts
   showModal(modalDialog(
     title = "Welcome to PEDAL",
-    "Explore bike crash data and infrastructure in Boston. 
-    Use the checkboxes to toggle between crash data and bike lanes.",
-    "Disclaimer: There may be discreprencies between PEDAL's data and
+    HTML("Explore bike crash data and infrastructure in Boston.<br><br> 
+    Use the checkboxes to toggle between crash data, bike lanes and pollution metrics.<br><br>
+    Disclaimer: There may be discreprencies between PEDAL's data and
     real-world observations. PEDAL is still under development and is
-    not resposible for any insights drawn. By pressing OK, you agree to this.",
+    not resposible for any insights drawn. <br><br> By pressing OK, you agree to this."),
 
     easyClose = TRUE, # When true, clicking outside the popup will close it
     # Add an 'OK' button to the modal dialog, when clicked the popup is closed
