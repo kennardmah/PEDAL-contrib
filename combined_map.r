@@ -46,7 +46,7 @@ centroid_data <- data.frame(
   centre_lat = st_coordinates(centroids)[, 2]
 )
 
-print(centroid_data)
+# print(centroid_data)
 
 # Function to fetch and process air pollution data for a single point
 fetch_pollution_data <- function(lat, lon, api_key) {
