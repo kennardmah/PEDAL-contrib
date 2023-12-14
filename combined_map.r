@@ -9,7 +9,6 @@ library(leaflet)
 library(sf)
 library(dplyr)
 library(data.table)
-library(ggplot2)
 library(thematic)
 library(dplyr)
 library(RColorBrewer)
@@ -47,7 +46,7 @@ centroid_data <- data.frame(
   centre_lat = st_coordinates(centroids)[, 2]
 )
 
-# print(centroid_data)
+print(centroid_data)
 
 # Function to fetch and process air pollution data for a single point
 fetch_pollution_data <- function(lat, lon, api_key) {
@@ -57,7 +56,7 @@ fetch_pollution_data <- function(lat, lon, api_key) {
   data <- fromJSON(rawToChar(response$content))
   
   # Print the entire data structure
-  # print(data)
+  print(data)
   
   # Check if the expected data is present
   if(!is.null(data$list) && !is.null(data$list$components) && !is.null(data$list$components$pm2_5)) {
@@ -159,6 +158,9 @@ server <- function(input, output, session) {
     title = "Welcome to PEDAL",
     "Explore bike crash data and infrastructure in Boston. 
     Use the checkboxes to toggle between crash data and bike lanes.",
+    "Disclaimer: There may be discreprencies between PEDAL's data and
+    real-world observations. PEDAL is still under development and is
+    not resposible for any insights drawn. By pressing OK, you agree to this.",
 
     easyClose = TRUE, # When true, clicking outside the popup will close it
     # Add an 'OK' button to the modal dialog, when clicked the popup is closed
@@ -195,20 +197,19 @@ server <- function(input, output, session) {
     # Conditionally adds PM2.5 choropleth / heatmap for neighborhoods
     if (input$bPM2.5) {
       map <- map %>% addPolygons(data = final_data_sf,
-                                 fillColor = ~colorNumeric(palette = c("cyan", "navy"), domain = c(0,100))(pm2_5_level),
+                                 fillColor = ~colorNumeric(palette = c("cyan", "navy"), domain = c(0,75))(pm2_5_level),  # nolint: line_length_linter.
                                  weight = 2,
                                  opacity = 0.3,
                                  color = "white",
                                  dashArray = "",
                                  fillOpacity = 0.5, 
-                                 highlightOptions = highlightOptions(
-                                   weight = 5,
-                                   opacity = 0.9,
-                                   color = "yellow",
-                                   dashArray = "1",
-                                   fillOpacity = 1,
-                                   bringToFront = TRUE),
-                                 label = ~paste(name, "PM2.5 Level:", pm2_5_level, "μg/m^3"),
+                                 highlightOptions = highlightOptions(weight = 5,
+                                                                     opacity = 0.9,  # nolint: line_length_linter.
+                                                                     color = "yellow",  # nolint: line_length_linter.
+                                                                     dashArray = "1",  # nolint: line_length_linter.
+                                                                     fillOpacity = 1,  # nolint: line_length_linter.
+                                                                     bringToFront = TRUE),  # nolint: line_length_linter.
+                                 label = ~paste(name, "PM2.5 Level:", pm2_5_level, "μg/m^3"),  # nolint: line_length_linter.
                                  labelOptions = labelOptions(
                                    style = list("font-weight" = "normal", padding = "3px 8px"),
                                    textsize = "15px",
@@ -221,7 +222,7 @@ server <- function(input, output, session) {
     # Conditionally adds nitrogen dioxide choropleth / heatmap for neighborhoods
     if (input$bNO2) {
       map <- map %>% addPolygons(data = final_data_sf,
-                                 fillColor = ~colorNumeric(palette = c("green", "red"), domain = c(0,150))(no2_level),
+                                 fillColor = ~colorNumeric(palette = c("green", "red"), domain = c(0,200))(no2_level),
                                  weight = 2,
                                  opacity = 0.3,
                                  color = "white",
