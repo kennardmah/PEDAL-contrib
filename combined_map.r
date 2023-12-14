@@ -105,9 +105,14 @@ ui <- fluidPage(
             .title-bar {
                 color: #FFF;
                 background-color: #06133E;
+                opacity: 1;
                 padding: 20px;
                 text-align: center;
                 font-size: 24px;
+            }
+            .title-image {
+                width: 10%;
+                padding: 10px 0;
             }
             .sidebar {
                 float: left;
@@ -132,7 +137,8 @@ ui <- fluidPage(
             }
         "))
   ),
-  div(class = "title-bar", "PEDAL: Visualization for Cyclist Safety in Boston"),
+  div(class = "title-bar", 
+      img(src = "logo.png", class = "title-image"), ": Visualizations for Cyclist Safety in Boston"),
   div(class = "sidebar",
       div(class = "checkbox-group",
               br(),
