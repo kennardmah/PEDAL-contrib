@@ -13,17 +13,16 @@ filtered_bike_lanes <- bike_lanes_geojson %>%
 # Add a new column 'laneType' for cycling lane type and select desired columns
 filtered_bike_lanes <- filtered_bike_lanes %>%
   mutate(laneType = case_when(
-    ExisFacil %in% c("BL", "SBLBL") ~ "NPSNB",
+    ExisFacil %in% c("BL", "SBLBL") ~ "purple", #non physical non barrier
     ExisFacil %in% c("BL-PEAKBUS", "BLSL", "CFBL",
-                     "SBLSL", "SLM", "SLMTC", "SUP", "SUPN", "SUPM") ~ "S",
-    ExisFacil == "BFBL" ~ "NPSB",
-    ExisFacil %in% c("SBL", "CFSBL") ~ "PS",
-    TRUE ~ NA_character_ 
+                     "SBLSL", "SLM", "SLMTC", "SUP", "SUPN", "SUPM") ~ "orange", #shared
+    ExisFacil == "BFBL" ~ "yellow", # non physical yes border
+    ExisFacil %in% c("SBL", "CFSBL") ~ "green", # physical sep
+    TRUE ~ NA_character_
   )) %>%
   filter(!is.na(laneType)) %>% # remove NA row (there is only 1)
   # remove un-used columns
-  # select(STREET_NAM, Shape_Leng, Shape__Length, geometry, laneType)
+  select(STREET_NAM, Shape_Leng, Shape__Length, geometry, laneType)
 
 # Output this to post-processed
-sf::st_write(filtered_bike_lanes,
-             "dataframe/post-processed/Existing_Bike_Network_2023.geojson")
+sf::st_write(filtered_bike_lanes, "dataframe/post-processed/Existing_Bike_Network_2023.geojson")

@@ -108,7 +108,7 @@ server <- function(input, output, session) {
     # Conditionally adds bike lanes on check box of Bike Lanes
     if (input$bBikeLane) {
       map <- map %>% addPolylines(data = filtered_bike_lanes,
-                                  color = "black",
+                                  color = ~laneType,
                                   weight = 3, opacity = 0.7)
     }
 
