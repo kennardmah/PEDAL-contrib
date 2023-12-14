@@ -144,7 +144,7 @@ ui <- fluidPage(
               br()
       ),
       
-      img(src = "legend.jpeg", class = "sidebar-image"),
+      img(src = "legend.png", class = "sidebar-image"),
   ),
   div(class = "main-content",
       leafletOutput("map", width = "100%", height = "1000px")
