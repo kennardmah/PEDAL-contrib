@@ -23,7 +23,7 @@ accidents_df <- fread("dataframe/post-processed/vision-zero-crash.csv")
 filtered_bike_lanes <- sf::read_sf("dataframe/post-processed/Existing_Bike_Network_2023.geojson")
 
 # API Key - replace with your actual API key
-api_key <- "9cf634461389fa0f5ab332e7c49f22ad"
+api_key <- # YOUR API KEY
 
 # Path to your GeoJSON file
 file_path <- "dataframe/pre-processed/Boston_Neighborhood_Boundaries_approximated_by_2020_Census_Block_Groups.geojson"
