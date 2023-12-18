@@ -20,7 +20,7 @@ library(leaflet.extras)
 accidents_df <- fread("dataframe/post-processed/vision-zero-crash.csv")
 
 # Loads and filters infrastructure data
-filtered_bike_lanes <- sf::read_sf("dataframe/post-processed/Existing_Bike_Network_2023.geojson") # nolint: line_length_linter.
+filtered_bike_lanes <- sf::read_sf("dataframe/post-processed/Existing_Bike_Network_2023.geojson")
 
 # API Key - replace with your actual API key
 api_key <- "9cf634461389fa0f5ab332e7c49f22ad"
@@ -46,8 +46,6 @@ centroid_data <- data.frame(
   centre_lat = st_coordinates(centroids)[, 2]
 )
 
-# print(centroid_data)
-
 # Function to fetch and process air pollution data for a single point
 fetch_pollution_data <- function(lat, lon, api_key) {
   url <- paste0("http://api.openweathermap.org/data/2.5/air_pollution?lat=",
@@ -55,21 +53,15 @@ fetch_pollution_data <- function(lat, lon, api_key) {
   response <- GET(url)
   data <- fromJSON(rawToChar(response$content))
   
-  # Print the entire data structure
-  # print(data)
-  
-  # Check if the expected data is present
   if(!is.null(data$list) && !is.null(data$list$components) && !is.null(data$list$components$pm2_5)) {
-    # Process the data and return a dataframe
     processed_data <- data.frame(
       centre_lat = lat,
       centre_lon = lon,
-      pm2_5_level = data$list$components$pm2_5,  # Example for PM2.5 levels
-      no2_level = data$list$components$no2  # for NO2 levels
+      pm2_5_level = data$list$components$pm2_5,
+      no2_level = data$list$components$no2
     )
     return(processed_data)
   } else {
-    # Return an empty dataframe or handle the error appropriately
     return(data.frame(latitude = numeric(0), longitude = numeric(0), pollution_level = numeric(0)))
   }
 }
@@ -82,24 +74,19 @@ fetch_pollution_data_all <- function(centroid_data, api_key) {
   do.call(rbind, all_data)
 }
 
-# Call the fetch_pollution_data_all function instead of fetch_pollution_data
 air_quality_results <- fetch_pollution_data_all(centroid_data, api_key)
 
-# Merge the data
 merged_final_data <- merge(centroid_data, air_quality_results, by = c("centre_lat", "centre_lon"))
 
-# Convert to spatial dataframe to allow for map visualisation
 final_data_sf <- st_as_sf(merged_final_data, sf_column_name = "geometry")
 
-#Sort alphabetically by neighborhood name
 final_data_sf <- final_data_sf %>%
   arrange(name)
 
-
+# UI Definition
 ui <- fluidPage(
   theme = bslib::bs_theme(bootswatch = "flatly"),
   
-  # Custom CSS to adjust the layout
   tags$head(
     tags$style(HTML("
             .title-bar {
@@ -135,36 +122,57 @@ ui <- fluidPage(
                 width: 100%;
                 padding: 10px 0;
             }
+            .contribute-github {
+              position: fixed;
+              bottom: 25px;
+              right: 25px;
+              z-index: 100;
+            }
+            .github-image {
+              height: 60px;
+              width: 60px;
+              margin-right: 5px;
+            }
+            .github-text {
+              color: black;
+              font-size: 14px;
+              font-weight: bold;
+              text-decoration: none;
+            }
         "))
   ),
   div(class = "title-bar", 
-      img(src = "pedal_white.png", class = "title-image"), ": Visualisations for Cyclist Safety in Boston"),
+      img(src = "pedal_white.png", class = "title-image"), ": Visualisation for Cyclist Decision-Making in Boston"),
   div(class = "sidebar",
       div(class = "checkbox-group",
-              br(),
-              br(),
-              checkboxInput("bCrash", "Show Bike Accidents", value = TRUE),
-              checkboxInput("bBikeLane", " Show Bike Lanes", value = FALSE),
-              checkboxInput("bPM2.5", "Show PM2.5 Level", value = FALSE),
-              checkboxInput("bNO2", "Show NO2 Level", value = FALSE),
-              br()
+          br(),
+          br(),
+          radioButtons("dataLayer", "Data Layers:",
+                       choices = list("Show Bike Accidents" = "bCrash",
+                                      "Show Bike Lanes" = "bBikeLane",
+                                      "Show PM2.5 Level" = "bPM2.5",
+                                      "Show NO2 Level" = "bNO2"),
+                       selected = NULL),
+          br()
       ),
-      
       img(src = "legend.png", class = "sidebar-image"),
   ),
   div(class = "main-content",
       leafletOutput("map", width = "100%", height = "1000px")
+  ),
+  tags$a(href = "https://github.com/kennardmah/data-product-vision-zero", target = "_blank", class = "contribute-github",
+         tags$img(src = "github-cycling.png", class = "github-image", title = "Contribute through our GitHub!"),
+         tags$span("Contribute and Share Your Thoughts on our GitHub!", class = "github-text")
   )
 )
 
-
-# Defines server logic
+# Server Function
 server <- function(input, output, session) {
   # IMPORTANT: kills the process when closing the app
   session$onSessionEnded(function() { stopApp() })
-
+  
   thematic::thematic_shiny()
-
+  
   # Show the modal dialog when the app starts
   showModal(modalDialog(
     title = HTML('Welcome to    <img src="logo.png" style="height: 50px; width: auto;"/>'),
@@ -173,41 +181,33 @@ server <- function(input, output, session) {
     Disclaimer: There may be discreprencies between PEDAL's data and
     real-world observations. PEDAL is still under development and is
     not resposible for any insights drawn. <br><br> By pressing OK, you agree to this."),
-
+    
     easyClose = TRUE, # When true, clicking outside the popup will close it
     # Add an 'OK' button to the modal dialog, when clicked the popup is closed
     footer = modalButton("OK!")
   ))
-
-  # Create and render the map
+  
   output$map <- renderLeaflet({
     # Defines coordinates for the center of Boston and as needed for aesthetics
     boston_lat <- 42.3150
     boston_long <- -71.0589
     zoom_level <- 12  # Adjust this to zoom in/out
-
-    # A base Leaflet map centered on Boston
+    
     map <- leaflet() %>%
-      # Grayscaled map tile
       addProviderTiles(providers$CartoDB.Positron) %>%
       setView(lng = boston_long, lat = boston_lat, zoom = zoom_level)
-
-    # Conditionally adds bike lanes on check box of Bike Lanes
-    if (input$bBikeLane) {
-      map <- map %>% addPolylines(data = filtered_bike_lanes, color = ~laneType,
-                                  weight = 3, opacity = 0.7)
-    }
-
-    # Conditionally adds crash locations on check box of Crashes
-    if (input$bCrash) {
+    
+    if (input$dataLayer == "bCrash") {
       map <- map %>% addCircleMarkers(data = accidents_df, ~long, ~lat,
                                       popup = ~as.character(dispatch_ts),
                                       color = "red", fillOpacity = 0.2,
-                                      weight = 0, radius = 3)
-    }
-    
-    # Conditionally adds PM2.5 choropleth / heatmap for neighborhoods
-    if (input$bPM2.5) {
+                                      weight = 0, radius = 3
+      )
+    } else if (input$dataLayer == "bBikeLane") {
+      map <- map %>% addPolylines(data = filtered_bike_lanes, color = ~laneType,
+                                  weight = 3, opacity = 0.7
+      )
+    } else if (input$dataLayer == "bPM2.5") {
       map <- map %>% addPolygons(data = final_data_sf,
                                  fillColor = ~colorNumeric(palette = c("cyan", "navy"), domain = c(0,75))(pm2_5_level),  # nolint: line_length_linter.
                                  weight = 2,
@@ -228,11 +228,8 @@ server <- function(input, output, session) {
                                    direction = "auto"),
                                  smoothFactor = 0.5,
                                  group = "Neighborhoods"
-                     )
-    }
-    
-    # Conditionally adds nitrogen dioxide choropleth / heatmap for neighborhoods
-    if (input$bNO2) {
+      )
+    } else if (input$dataLayer == "bNO2") {
       map <- map %>% addPolygons(data = final_data_sf,
                                  fillColor = ~colorNumeric(palette = c("green", "red"), domain = c(0,200))(no2_level),
                                  weight = 2,
@@ -254,14 +251,12 @@ server <- function(input, output, session) {
                                    direction = "auto"),
                                  smoothFactor = 0.5,
                                  group = "Neighborhoods"
-                     )
+      )
     }
     
-
-    # Returns the modified map
     map
   })
 }
 
-# Creates Shiny app
+# Create Shiny App
 shinyApp(ui, server)
