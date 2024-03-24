@@ -1,6 +1,6 @@
 # PEDAL-contrib
 
-# Please visit the report for more info!
+## *Please visit the report for more info!*
 
 ### Introduction
 PEDAL-contrib is a pioneering project aimed at enhancing the safety and health practices of cyclists in Boston through real-time visualization technologies. This repository is a hub for collaborative development, sharing innovative tools and insights to promote cycling safety.
